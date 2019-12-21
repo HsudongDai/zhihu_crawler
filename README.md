@@ -78,4 +78,4 @@ We also have prepared createDatabase.sql for you to have a clear understanding o
 
 # Demostration of running result of the project
 Here is a screenshot of the table.<br>
-<img src="">
+<img src="https://github.com/HsudongDai/zhihu_crawler/blob/master/screenshot.png?raw=true" alt="demoGraph">
