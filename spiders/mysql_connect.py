@@ -23,6 +23,7 @@ def insert_tuple(info: dict, db) :
     try :
         cursor.execute(sql)
         db.commit()
+        cursor.close()
         print('插入成功')
     except Exception:
         db.rollback()

@@ -1,9 +1,12 @@
+import argparse
+
 from firstDemo.spiders.indexZhihu import get_all_problem_urls, insert_all_into_db
 from firstDemo.spiders.multithread import multi_check_info
 from firstDemo.spiders.mysql_connect import connect_mysql, close_mysql
+from firstDemo.spiders.toXlsx import read_mysql_to_xlsx
 
 
-def main(*, db_addr='localhost', db_user='root', db_passwd='990916', db_name='zhihu') :
+def main(config) :
     # 四个知乎目标网页的URL
     mianshi_url = 'https://www.zhihu.com/search?type=content&q=%E9%9D%A2%E8%AF%95'
     shixi_url = "https://www.zhihu.com/search?type=content&q=%E5%AE%9E%E4%B9%A0"
@@ -19,11 +22,22 @@ def main(*, db_addr='localhost', db_user='root', db_passwd='990916', db_name='zh
     # 将queue.Queue类型转换为deque
     mid_queue = collected_info.queue
     # 连接mysql数据库
-    db = connect_mysql(db_addr=db_addr, db_user=db_user, db_passwd=db_passwd, db_name=db_name)
+    db = connect_mysql(db_addr=config.db_addr, db_user=config.db_user, db_passwd=config.db_passwd,
+                       db_name=config.db_name)
     # 将所有数据插入
     insert_all_into_db(mid_queue, db)
+    # 将数据导出到xlsx文件
+    read_mysql_to_xlsx('latestResult.xlsx', db)
     # 关闭数据库连接
     close_mysql(db)
 
-if __name__ == '__main__':
-    main(db_addr=)
+
+if __name__ == '__main__' :
+    # 通过命令行传入启动参数
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--db_addr', type=str, default='localhost')
+    parser.add_argument('--db_user', type=str, default='root')
+    parser.add_argument('--db_passwd', type=str, default='990916')
+    parser.add_argument('--db_name', type=str, default='zhihu')
+    config = parser.parse_args()
+    main(config)
