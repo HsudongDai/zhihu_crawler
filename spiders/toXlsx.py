@@ -2,16 +2,20 @@ import pymysql
 import xlwt
 
 
+# 初始化数据库连接
 def get_conn():
-    conn = pymysql.connect(host='localhost', port=3306, user='root', passwd='990916', db='zhihu', charset='utf8mb4')
+    conn = pymysql.connect(host='localhost', port=3306, user='root',
+                           passwd='990916', db='zhihu', charset='utf8mb4')
     return conn
 
 
+# 获取表内所有内容
 def query_all(cur, sql, args):
     cur.execute(sql, args)
     return cur.fetchall()
 
 
+# 将数据库转换至xlsx表格
 def read_mysql_to_xlsx(filename, db):
     list_table_head = []
     workbook = xlwt.Workbook()
@@ -21,7 +25,7 @@ def read_mysql_to_xlsx(filename, db):
 
     conn = db
     cur = conn.cursor()
-    sql = f"select * from zhihu.search_result"
+    sql = f"SELECT * FROM zhihu.search_result;"
     results = query_all(cur, sql, None)
     conn.commit()
     cur.close()

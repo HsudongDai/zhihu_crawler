@@ -7,6 +7,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 
 
+# 这里是用于测试的问题urls
 '''
 test_mid_urls = [
     ['https://www.zhihu.com/question/35953016', 'https://www.zhihu.com/question/20602526',
@@ -53,14 +54,14 @@ test_mid_urls = [
 '''
 
 
-def get_driver_url_content(url, timeout=3) :
+def get_driver_url_content(url, timeout=3):
     """
     使用浏览器获取动态内容
     :param url:         网页url
     :param timeout:     设置超时
     :return:
     """
-    try :
+    try:
         # 设置启动的Chrome为无桌面、不使用显卡模式
         chrome_options = Options()
         chrome_options.add_argument('--headless')
@@ -83,51 +84,58 @@ def get_driver_url_content(url, timeout=3) :
 
 
 # 提取页面中包含的URL
-def extract_urls(bsObj: bs4.BeautifulSoup) :
+def extract_urls(bsObj: bs4.BeautifulSoup):
     # 得到网页HTML的字符串形式
     text = str(bsObj.prettify())
     # 文本中包含很多意外“\n”换行符
     text = re.sub('\n', '', text)
     # 文本中有很多“\\002F”， 其实是“/”，影响识别
     pas = re.sub(r"\\u002F", '/', text)
-    mids = re.findall(r"https://[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]", pas)
+    # 这个正则表达式覆盖了网页内的所有url
+    mids = re.findall(
+        r"https://[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]", pas)
     urls = []
-    for url in mids :
+    for url in mids:
         if "question" in url \
                 and "answer" not in url \
-                and "link" not in url :
+                and "link" not in url:
             urls.append(url)
     return urls
 
 
-def modify_urls(urls) :
+# 从页面中获取的URL有一些也是问题页面的链接
+# 但是其格式不对，因此需要将其转成正确的、可以打开的页面的URL
+def modify_urls(urls):
     mids = []
     new_url = ''
-    for url in urls :
-        if url.find("api") != -1 :
+    for url in urls:
+        if url.find("api") != -1:
             new_url = url.replace('api', 'www')
             new_url = new_url.replace('questions', 'question')
-            if new_url not in mids :
+            if new_url not in mids:
                 mids.append(new_url)
-            else :
+            else:
                 pass
-        else :
+        else:
             mids.append(url)
     return mids
 
 
-def find_name(website: bs4.BeautifulSoup) :
+# 从页面中获取问题的名字
+def find_name(website: bs4.BeautifulSoup):
     name = website.find(class_='QuestionHeader-title')
     return name.string
 
 
-def find_visit(website: bs4.BeautifulSoup) :
+# 从页面中获取关注者数目和被浏览次数
+def find_visit(website: bs4.BeautifulSoup):
     visit = website.find_all(class_='NumberBoard-itemValue')
     # 0 是关注者数目， 1是被浏览数目
     return visit[0].string, visit[1].string
 
 
-def find_author(website: bs4.BeautifulSoup) :
+# 从页面中获取作者的ID和昵称
+def find_author(website: bs4.BeautifulSoup):
     author_info = website.find(class_="UserLink-link")
     avatar: str = author_info['href']
     avatar = avatar.split('/')[-1]

@@ -40,4 +40,5 @@ if __name__ == '__main__' :
     parser.add_argument('--db_passwd', type=str, default='990916')
     parser.add_argument('--db_name', type=str, default='zhihu')
     config = parser.parse_args()
+    # 按照启动参数运行主函数
     main(config)
